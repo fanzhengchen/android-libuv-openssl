@@ -1,15 +1,14 @@
 package com.fzc.jni;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.widget.TextView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -18,9 +17,8 @@ public class MainActivity extends AppCompatActivity {
         System.loadLibrary("native-lib");
     }
 
-    private JniClass mJniClass = new JniClass();
+    Native mNative = new Native();
 
-    private Handler mHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,15 +38,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Example of a call to a native method
         TextView tv = (TextView) findViewById(R.id.sample_text);
-        tv.setText(mJniClass.getStringFromJni());
+        tv.setText(stringFromJNI() + "\r\n" + mNative.onLoad() + "\r\n"
+                + System.getProperty("os.arch"));
 
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                System.out.println("run jni native");
-                mJniClass.getJavaClass();
-            }
-        }, 1000);
 
     }
 
@@ -74,9 +66,18 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
+    @Override
+    protected void onStart() {
+
+        super.onStart();
+    }
+
     /**
      * A native method that is implemented by the 'native-lib' native library,
      * which is packaged with this application.
      */
+
+
     public native String stringFromJNI();
 }
