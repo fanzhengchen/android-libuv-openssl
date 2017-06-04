@@ -1,0 +1,28 @@
+#!/bin/bash
+
+export TOOLCHAIN=$PWD/android-toolchain
+mkdir -p $TOOLCHAIN
+$1/build/tools/make-standalone-toolchain.sh \
+    --toolchain=arm-linux-androideabi-4.9 \
+    --arch=arm \
+    --install-dir=$TOOLCHAIN \
+    --platform=android-14 \
+    --force
+export PATH=$TOOLCHAIN/bin:$PATH
+export AR=arm-linux-androideabi-ar
+export CC=arm-linux-androideabi-gcc
+export CXX=arm-linux-androideabi-g++
+export LINK=arm-linux-androideabi-g++
+export PLATFORM=android
+
+export ARCH_FLAGS="-mthumb"
+export ARCH_LINK=
+export CPPFLAGS=" ${ARCH_FLAGS} -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -finline-limit=64 "
+export CXXFLAGS=" ${ARCH_FLAGS} -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -finline-limit=64 -frtti -fexceptions "
+export CFLAGS=" ${ARCH_FLAGS} -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -finline-limit=64 "
+export LDFLAGS=" ${ARCH_LINK} "
+
+if [[ $2 == 'gyp' ]]
+  then
+    ./gyp_uv.py -Dtarget_arch=arm -DOS=android -f make-android
+fi
