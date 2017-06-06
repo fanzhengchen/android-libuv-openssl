@@ -3,15 +3,14 @@ cmake_minimum_required(VERSION 3.4.1)
 
 add_library(
              native-lib
-
              SHARED
-
              native-lib.cpp )
 
 
 find_library(
               log-lib
-              log )
+              log)
+
 
 
 
@@ -29,15 +28,26 @@ set_target_properties(crypto-lib PROPERTIES IMPORTED_LOCATION ${lib_dir}/libcryp
 add_library(ssl-lib STATIC IMPORTED)
 set_target_properties(ssl-lib PROPERTIES IMPORTED_LOCATION ${lib_dir}/libssl.a)
 
-target_link_libraries( # Specifies the target library.
-                       native-lib
+#add_library(http-socket SHARED HTTPSocket.cpp Group.cpp Node.cpp Socket.cpp Networking.cpp)
+#target_link_libraries(http-socket ssl-lib crypto-lib uv-lib)
 
+target_link_libraries(
+                       native-lib
                        ${log-lib} )
+
+add_library(uWS-lib
+            SHARED
+            WebSocket.cpp Hub.cpp HTTPSocket.cpp Group.cpp Node.cpp Socket.cpp Networking.cpp )
+target_link_libraries(uWS-lib ssl-lib crypto-lib uv-lib z)
+
+
+
 
 add_library(main SHARED main.cpp)
 target_link_libraries( # Specifies the target library.
                        main
                        uv-lib
                        crypto-lib
+                       zlib
                        ssl-lib
                        ${log-lib} )
