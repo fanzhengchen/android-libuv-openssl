@@ -13,11 +13,11 @@ typedef struct WebSocketClient{
     lws_context_creation_info *pCreateInfo;
     lws_client_connect_info *pConnectInfo;
     lws_context *pClient;
+    lws *pLws;
 
     WebSocketClient(){
         pCreateInfo = (lws_context_creation_info *)malloc(sizeof(lws_context_creation_info));
         pConnectInfo = (lws_client_connect_info *)malloc(sizeof(lws_client_connect_info));
-        pClient = (lws_context *)malloc(sizeof(lws_context));
     }
 
     void init(){
@@ -26,13 +26,17 @@ typedef struct WebSocketClient{
         pConnectInfo->address="172.16.14.15";
         pConnectInfo->host="172.16.14.15";
         pConnectInfo->path="webSocket";
+        pConnectInfo->userdata= NULL;
 
+        pCreateInfo->protocols = NULL;
 
         pClient = lws_create_context(pCreateInfo);
 
     }
 
     void connect(){
+        pLws = lws_client_connect_via_info(pConnectInfo);
+
 //        lws_client_connect();
     }
     ~WebSocketClient(){
