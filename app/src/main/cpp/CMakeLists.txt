@@ -35,19 +35,17 @@ target_link_libraries(
                        native-lib
                        ${log-lib} )
 
-add_library(uWS-lib
+add_library(uWS
             SHARED
             Hub.cpp HTTPSocket.cpp Extensions.cpp
             WebSocket.cpp Group.cpp Node.cpp Socket.cpp Networking.cpp)
 
-target_link_libraries(uWS-lib ssl-lib crypto-lib uv-lib z)
+target_link_libraries(uWS ssl-lib crypto-lib uv-lib z)
 
 
 
-add_library(main SHARED main.cpp)
+add_library(WebSocketJni SHARED WebSocketJni.cpp)
 target_link_libraries( # Specifies the target library.
-                       main
-                       uv-lib
-                       crypto-lib
-                       ssl-lib
+                       WebSocketJni
+                       uWS
                        ${log-lib} )
