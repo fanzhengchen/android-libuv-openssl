@@ -14,4 +14,10 @@ public class ExampleUnitTest {
     public void addition_isCorrect() throws Exception {
         assertEquals(4, 2 + 2);
     }
+
+    @Test
+    public void fuck()throws Exception{
+        //language=RegExp
+        String regex = "^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]*";
+    }
 }

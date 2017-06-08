@@ -1,51 +1,29 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
-add_library(
-             native-lib
-             SHARED
-             native-lib.cpp )
-
-
-find_library(
-              log-lib
-              log)
-
-
-
-
 set(lib_dir ${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI})
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-add_library(uv-lib STATIC IMPORTED)
-set_target_properties(uv-lib PROPERTIES IMPORTED_LOCATION ${lib_dir}/libuv.a)
+add_library(uv STATIC IMPORTED)
+set_target_properties(uv PROPERTIES IMPORTED_LOCATION ${lib_dir}/libuv.a)
 
 
-add_library(crypto-lib STATIC IMPORTED)
-set_target_properties(crypto-lib PROPERTIES IMPORTED_LOCATION ${lib_dir}/libcrypto.a)
+add_library(crypto STATIC IMPORTED)
+set_target_properties(crypto PROPERTIES IMPORTED_LOCATION ${lib_dir}/libcrypto.a)
 
-add_library(ssl-lib STATIC IMPORTED)
-set_target_properties(ssl-lib PROPERTIES IMPORTED_LOCATION ${lib_dir}/libssl.a)
+add_library(ssl STATIC IMPORTED)
+set_target_properties(ssl PROPERTIES IMPORTED_LOCATION ${lib_dir}/libssl.a)
 
-#add_library(http-socket SHARED HTTPSocket.cpp Group.cpp Node.cpp Socket.cpp Networking.cpp)
-#target_link_libraries(http-socket ssl-lib crypto-lib uv-lib)
 
-target_link_libraries(
-                       native-lib
-                       ${log-lib} )
-
-add_library(uWS
-            SHARED
-            Hub.cpp HTTPSocket.cpp Extensions.cpp
-            WebSocket.cpp Group.cpp Node.cpp Socket.cpp Networking.cpp)
-
-target_link_libraries(uWS ssl-lib crypto-lib uv-lib z)
+add_library(lws
+            STATIC
+            IMPORTED)
+set_target_properties(lws PROPERTIES IMPORTED_LOCATION ${lib_dir}/libwebsockets.a)
 
 
 
 add_library(WebSocketJni SHARED WebSocketJni.cpp)
-target_link_libraries( # Specifies the target library.
-                       WebSocketJni
-                       uWS
-                       ${log-lib} )
+target_link_libraries( WebSocketJni
+                       lws
+                       log )

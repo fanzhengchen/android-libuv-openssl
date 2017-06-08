@@ -3,64 +3,58 @@
 //
 #include <jni.h>
 #include <android/log.h>
-#include <uv.h>
-#include <openssl/rand.h>
-#include "HTTPSocket.h"
-#include "uWS.h"
-#include <android/log.h>
-#include <string>
-#include "Socket.h"
-
-void log(const char *fmt, ...) {
-    va_list args;
-    va_start(args,fmt);
-    __android_log_print(ANDROID_LOG_DEBUG, "WebSocketClient", fmt, args);
-    va_end(args);
-}
+#include "libwebsockets.h"
+#include <sys/time.h>
+#include <signal.h>
 
 
+typedef struct WebSocketClient{
 
-class WebSocketClientManager {
-private:
-    uWS::WebSocket<uWS::CLIENT> *webSocketClient;
-    uWS::Hub hub;
-    std::string mUri;
+    lws_context_creation_info *pCreateInfo;
+    lws_client_connect_info *pConnectInfo;
+    lws_context *pClient;
 
-
-
-public:
-
-    ~WebSocketClientManager() {
+    WebSocketClient(){
+        pCreateInfo = (lws_context_creation_info *)malloc(sizeof(lws_context_creation_info));
+        pConnectInfo = (lws_client_connect_info *)malloc(sizeof(lws_client_connect_info));
+        pClient = (lws_context *)malloc(sizeof(lws_context));
     }
 
-    void
-    connect(const char *uri) {
-        this->mUri = std::string(uri);
+    void init(){
+        pConnectInfo->protocol="ws";
+        pConnectInfo->port=20000;
+        pConnectInfo->address="172.16.14.15";
+        pConnectInfo->host="172.16.14.15";
+        pConnectInfo->path="webSocket";
 
-        hub.onConnection([](uWS::WebSocket<uWS::CLIENT> *ws, uWS::HttpRequest req) {
-            uS::Socket::Address address = ws->getAddress();
-            log("%s %s %d", address.address, address.family, address.port);
-        });
 
-        hub.connect(this->mUri, nullptr);
+        pClient = lws_create_context(pCreateInfo);
 
-        hub.run();
     }
 
-} *pWebSocketClientManager = nullptr;
+    void connect(){
+//        lws_client_connect();
+    }
+    ~WebSocketClient(){
+        free(pClient);
+        free(pConnectInfo);
+        free(pClient);
+    }
+
+}WebSocketClient;
+static WebSocketClient client;
+
 
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_fzc_jni_WebSocketClient_connec(JNIEnv *env, jobject instance, jstring uri_) {
-    jboolean iscopy = 0x1;
     const char *uri = env->GetStringUTFChars(uri_, 0);
-    pWebSocketClientManager->connect(uri);
-//    env->ReleaseStringUTFChars(uri_, uri);
+    env->ReleaseStringUTFChars(uri_, uri);
 }
 
 extern "C"
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
-    pWebSocketClientManager = new WebSocketClientManager();
+
     return JNI_VERSION_1_6;
 }
 
@@ -68,6 +62,5 @@ extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_fzc_jni_Native_onLoad(JNIEnv *env, jclass type) {
 
-    delete (pWebSocketClientManager);
     return env->NewStringUTF("onload");
 }
