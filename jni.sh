@@ -1,4 +1,8 @@
 #!/bin/sh
 
 out="a.h"
-jni -o ./app/src/main/cpp/$out -classpath ./app/build/intermediates/
+target="WebSocket"
+javah -o ./app/src/main/cpp/$out \
+    -classpath ./app/build/intermediates/classes/debug \
+    com.xgn.$target
+
