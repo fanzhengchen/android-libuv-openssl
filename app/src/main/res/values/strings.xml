@@ -4,6 +4,7 @@
     <string name="close">close</string>
     <string name="send">send</string>
     <string name="init">init</string>
+    <string name="send_binary_message">send binary message</string>
 
     <string name="on_message">on message</string>
 </resources>

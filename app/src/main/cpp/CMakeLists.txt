@@ -26,4 +26,4 @@ target_link_libraries(native-lib ${log-lib} )
 
 add_library(ws SHARED WebSocket.h WebSocket.cpp)
 
-target_link_libraries(ws ssl crypto lws uv)
+target_link_libraries(ws ssl crypto lws uv log)

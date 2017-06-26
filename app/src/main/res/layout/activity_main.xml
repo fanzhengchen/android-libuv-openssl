@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -10,22 +9,28 @@
     tools:context="com.xgn.androidlibuvlibwebsocketsboringssl.MainActivity">
 
     <TextView
+        android:id="@+id/connect"
         style="@style/XgnText"
-        android:text="@string/connect"/>
+        android:text="@string/connect" />
 
     <TextView
+        android:id="@+id/send"
         style="@style/XgnText"
-        android:text="@string/send"/>
-
-    <EditText
-        style="@style/XgnEdit"/>
+        android:text="@string/send" />
 
     <TextView
+        android:id="@+id/binary_message"
         style="@style/XgnText"
-        android:text="@string/close"/>
+        android:text="@string/send_binary_message" />
+
+    <TextView
+        android:id="@+id/close"
+        style="@style/XgnText"
+        android:text="@string/close" />
 
 
     <TextView
+        android:id="@+id/console"
         android:layout_width="match_parent"
-        android:layout_height="200dp"/>
+        android:layout_height="200dp" />
 </LinearLayout>
