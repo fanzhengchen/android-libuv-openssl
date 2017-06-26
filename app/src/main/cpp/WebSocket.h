@@ -79,5 +79,6 @@ void jni_xgn_WebSocket_sendData(JNIEnv *, jobject, jbyteArray);
 static int
 callback(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len);
 
+void invoke_on_connect();
 #endif
 #endif

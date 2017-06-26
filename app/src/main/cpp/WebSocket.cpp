@@ -5,14 +5,17 @@
 #include "WebSocket.h"
 #include "XgnLog.h"
 
+const char JNI_RECLASS[] = "com/xgn/WebSocket";
 const int BUFFER_SIZE = 1 << 12;
 
 static lws_context_creation_info creation_info;
 static lws_client_connect_info connect_info;
 static lws_context *context;
+static lws *wsi = nullptr;
 static JavaVM *gJvm = nullptr;
 static JNIEnv *gEnv = nullptr;
-static lws *wsi = nullptr;
+static jclass gJclass;
+static jobject gObject;
 static u_int8_t buffer[BUFFER_SIZE];
 
 static volatile int force_exit = 0;
@@ -97,8 +100,12 @@ callback(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in
     switch (reason) {
         case LWS_CALLBACK_CLIENT_ESTABLISHED: {
             LOGV("client established", __LINE__);
+            invoke_on_connect();
             break;
         };
+        case LWS_CALLBACK_CLIENT_CONNECTION_ERROR: {
+            break;
+        }
         case LWS_CALLBACK_CLIENT_WRITEABLE: {
             per_session_data *data = (per_session_data *) user;
             LOGV("client writable %s", data->data);
@@ -121,7 +128,9 @@ callback(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in
             break;
         };
         case LWS_CALLBACK_CLIENT_RECEIVE: {
-
+//            lws_frame_is_binary(wsi);
+            LOGV("client receive %s", (char *) in);
+            break;
         }
         default: {
 
@@ -136,6 +145,14 @@ void jni_xgn_WebSocket_init(JNIEnv *env, jobject obj) {
     memset(&creation_info, 0, sizeof(lws_context_creation_info));
     memset(&connect_info, 0, sizeof(lws_client_connect_info));
     force_exit = 0;
+
+    jclass jcls = env->GetObjectClass(obj);
+    gJclass = (jclass) env->NewGlobalRef(jcls);
+    gObject = env->NewGlobalRef(obj);
+
+//    invoke_on_connect();
+//    gJvm->AttachCurrentThread(&gEnv, NULL);
+//    jmethodID method = gEnv->GetMethodID(gJclass, "onConnect", "()V");
 
     creation_info.port = CONTEXT_PORT_NO_LISTEN;
     creation_info.extensions = exts;
@@ -224,9 +241,27 @@ JNI_OnLoad(JavaVM *vm, void *reserved) {
         return -1;
     }
 
+    if (vm->AttachCurrentThread(&gEnv, NULL) < 0) {
+        return -1;
+    }
+
     return JNI_VERSION_1_6;
 }
 
 JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *vm, void *reserved) {
 //     LOGI("JNI_OnUnload");
+
+    gEnv->DeleteLocalRef(gJclass);
+    gEnv->DeleteLocalRef(gObject);
+    gJvm->DetachCurrentThread();
+}
+
+
+void invoke_on_connect() {
+
+    gJvm->AttachCurrentThread(&gEnv, NULL);
+    jmethodID methodId = gEnv->GetMethodID(gJclass, "onConnect", "()V");
+    gEnv->CallVoidMethod(gObject, methodId);
+
+//    gJvm->DetachCurrentThread();
 }

@@ -30,6 +30,7 @@ public class WebSocket {
     }
 
     void onConnect() {
+        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!on connect");
         if (mWebSocketListener != null) {
             mWebSocketListener.onConnected();
         }

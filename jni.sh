@@ -6,3 +6,6 @@ javah -o ./app/src/main/cpp/$out \
     -classpath ./app/build/intermediates/classes/debug \
     com.xgn.$target
 
+
+javap -s \
+	-classpath ./app/build/intermediates/classes/debug com.xgn.$target
