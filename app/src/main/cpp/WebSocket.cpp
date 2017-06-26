@@ -3,6 +3,7 @@
 //
 
 #include "WebSocket.h"
+#include "XgnLog.h"
 
 void jni_xgn_WebSocket_init(JNIEnv *, jobject);
 
@@ -18,8 +19,8 @@ void jni_xgn_WebSocket_close(JNIEnv *, jobject);
  */
 extern "C"
 JNIEXPORT void JNICALL Java_com_xgn_WebSocket_init
-        (JNIEnv *, jobject) {
-
+        (JNIEnv *env, jobject obj) {
+    jni_xgn_WebSocket_init(env, obj);
 };
 
 /*
@@ -29,8 +30,8 @@ JNIEXPORT void JNICALL Java_com_xgn_WebSocket_init
  */
 extern "C"
 JNIEXPORT void JNICALL Java_com_xgn_WebSocket_connect
-        (JNIEnv *, jobject) {
-
+        (JNIEnv *env, jobject obj) {
+    jni_xgn_WebSocket_connect(env, obj);
 };
 
 /*
@@ -40,8 +41,8 @@ JNIEXPORT void JNICALL Java_com_xgn_WebSocket_connect
  */
 extern "C"
 JNIEXPORT void JNICALL Java_com_xgn_WebSocket_send
-        (JNIEnv *, jobject, jstring) {
-
+        (JNIEnv *env, jobject _jobject, jstring _jstring) {
+    jni_xgn_WebSocket_send(env, _jobject, _jstring);
 };
 
 /*
@@ -51,22 +52,22 @@ JNIEXPORT void JNICALL Java_com_xgn_WebSocket_send
  */
 extern "C"
 JNIEXPORT void JNICALL Java_com_xgn_WebSocket_close
-        (JNIEnv *, jobject) {
-
+        (JNIEnv *env, jobject _jobject) {
+    jni_xgn_WebSocket_close(env, _jobject);
 };
 
-void jni_xgn_WebSocket_init(JNIEnv *env, jobject obj){
-
+void jni_xgn_WebSocket_init(JNIEnv *env, jobject obj) {
+    LOGV(__FUNCTION__);
 }
 
-void jni_xgn_WebSocket_connect(JNIEnv *env, jobject obj){
-
+void jni_xgn_WebSocket_connect(JNIEnv *env, jobject obj) {
+    LOGV(__FUNCTION__);
 };
 
-void jni_xgn_WebSocket_send(JNIEnv *env, jobject obj, jstring str){
-
+void jni_xgn_WebSocket_send(JNIEnv *env, jobject obj, jstring str) {
+    LOGV(__FUNCTION__);
 };
 
-void jni_xgn_WebSocket_close(JNIEnv *env, jobject obj){
-
+void jni_xgn_WebSocket_close(JNIEnv *env, jobject obj) {
+    LOGV(__FUNCTION__);
 };
