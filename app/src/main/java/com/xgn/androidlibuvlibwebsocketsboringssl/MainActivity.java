@@ -18,6 +18,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     WebSocket mWebSocket = new WebSocket();
+    TextView mConsoleView;
 
 
     @Override
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mWebSocket = new WebSocket();
         mWebSocket.setWebSocketListener(this);
 
+        mConsoleView = $(R.id.console);
         $(R.id.close).setOnClickListener(this);
         $(R.id.connect).setOnClickListener(this);
         $(R.id.send).setOnClickListener(this);
@@ -93,13 +95,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public void onText(String text) {
+    public void onText(final String text) {
         Logger.e(text);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mConsoleView.append(text);
+                mConsoleView.append("\r\n");
+            }
+        });
     }
 
     @Override
-    public void onData(byte[] data) {
+    public void onData(final byte[] data) {
         Logger.e(new String(data));
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mConsoleView.append(new String(data));
+                mConsoleView.append("\r\n");
+            }
+        });
     }
 
     @Override
