@@ -80,5 +80,14 @@ static int
 callback(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len);
 
 void invoke_on_connect();
+
+void invoke_on_disconnect();
+
+void invoke_on_close();
+
+void invoke_on_receive_text(char *);
+
+void invoke_on_receive_data(char *);
+
 #endif
 #endif

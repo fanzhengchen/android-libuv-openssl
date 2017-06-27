@@ -117,6 +117,7 @@ callback(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in
         };
         case LWS_CALLBACK_CLOSED: {
             LOGV("socket close", __LINE__);
+            invoke_on_close();
             break;
         };
         case LWS_CALLBACK_GET_THREAD_ID: {
@@ -124,12 +125,19 @@ callback(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in
         }
         case LWS_CALLBACK_WSI_DESTROY: {
             LOGV("disconnected");
+            invoke_on_disconnect();
             force_exit = 1;
             break;
         };
         case LWS_CALLBACK_CLIENT_RECEIVE: {
-//            lws_frame_is_binary(wsi);
-            LOGV("client receive %s", (char *) in);
+            int type = lws_frame_is_binary(wsi);
+            char *content = (char *) in;
+            if (type) {
+                invoke_on_receive_data(content);
+            } else {
+                invoke_on_receive_text(content);
+            }
+            LOGV("client receive %s", content);
             break;
         }
         default: {
@@ -149,10 +157,6 @@ void jni_xgn_WebSocket_init(JNIEnv *env, jobject obj) {
     jclass jcls = env->GetObjectClass(obj);
     gJclass = (jclass) env->NewGlobalRef(jcls);
     gObject = env->NewGlobalRef(obj);
-
-//    invoke_on_connect();
-//    gJvm->AttachCurrentThread(&gEnv, NULL);
-//    jmethodID method = gEnv->GetMethodID(gJclass, "onConnect", "()V");
 
     creation_info.port = CONTEXT_PORT_NO_LISTEN;
     creation_info.extensions = exts;
@@ -258,10 +262,37 @@ JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *vm, void *reserved) {
 
 
 void invoke_on_connect() {
-
     gJvm->AttachCurrentThread(&gEnv, NULL);
     jmethodID methodId = gEnv->GetMethodID(gJclass, "onConnect", "()V");
     gEnv->CallVoidMethod(gObject, methodId);
-
-//    gJvm->DetachCurrentThread();
 }
+
+void invoke_on_disconnect() {
+    gJvm->AttachCurrentThread(&gEnv, NULL);
+    jmethodID methodID = gEnv->GetMethodID(gJclass, "onDisconnected", "()V");
+    gEnv->CallVoidMethod(gObject, methodID);
+}
+
+void invoke_on_close() {
+    gJvm->AttachCurrentThread(&gEnv, NULL);
+    jmethodID method = gEnv->GetMethodID(gJclass, "onClose", "()V");
+    gEnv->CallVoidMethod(gObject, method);
+}
+
+void invoke_on_receive_text(char *content) {
+    jstring str = gEnv->NewStringUTF(content);
+    gJvm->AttachCurrentThread(&gEnv, NULL);
+    jmethodID method = gEnv->GetMethodID(gJclass, "onReceiveText", "(Ljava/lang/String;)V");
+    gEnv->CallVoidMethod(gObject, method, str);
+    gEnv->ReleaseStringUTFChars(str, content);
+};
+
+void invoke_on_receive_data(char *content) {
+    size_t len = strlen(content);
+    jbyteArray array = gEnv->NewByteArray(len);
+    jbyte *bytes = (jbyte *) content;
+    gEnv->SetByteArrayRegion(array, 0, len, bytes);
+    jmethodID method = gEnv->GetMethodID(gJclass, "onReceiveData", "([B)V");
+    gEnv->CallVoidMethod(gObject, method, array);
+    gEnv->ReleaseByteArrayElements(array, bytes, 0);
+};

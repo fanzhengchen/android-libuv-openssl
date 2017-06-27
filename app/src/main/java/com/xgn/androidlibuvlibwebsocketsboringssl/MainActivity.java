@@ -4,17 +4,20 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.orhanobut.logger.Logger;
 import com.xgn.WebSocket;
+import com.xgn.WebSocketListener;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, WebSocketListener {
 
     // Used to load the 'native-lib' library on application startup.
     static {
         System.loadLibrary("native-lib");
     }
 
-    WebSocket mWebSocket;
+    WebSocket mWebSocket = new WebSocket();
 
 
     @Override
@@ -23,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         mWebSocket = new WebSocket();
+        mWebSocket.setWebSocketListener(this);
 
         $(R.id.close).setOnClickListener(this);
         $(R.id.connect).setOnClickListener(this);
@@ -86,5 +90,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mWebSocket = new WebSocket();
         }
         return mWebSocket;
+    }
+
+    @Override
+    public void onText(String text) {
+        Logger.e(text);
+    }
+
+    @Override
+    public void onData(byte[] data) {
+        Logger.e(new String(data));
+    }
+
+    @Override
+    public void onConnected() {
+        Logger.e("on connected !!!!!!!!!!!!!!!!");
+//        Toast.makeText(this, "on connected", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onDisconnected() {
+        Logger.e("on disconnected");
+//        Toast.makeText(this, "on disconnected", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onClose() {
+        Logger.e("on close");
+//        Toast.makeText(this, "on close", Toast.LENGTH_SHORT).show();
     }
 }

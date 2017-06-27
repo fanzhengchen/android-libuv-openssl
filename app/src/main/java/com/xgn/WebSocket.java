@@ -4,6 +4,10 @@ package com.xgn;
  * Created by fanzhengchen on 6/23/17.
  */
 
+import android.os.Looper;
+
+import com.orhanobut.logger.Logger;
+
 /**
  * XGN custum websocket based libwebsockets
  */
@@ -30,8 +34,9 @@ public class WebSocket {
     }
 
     void onConnect() {
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!on connect");
+        Logger.e("on connect");
         if (mWebSocketListener != null) {
+            Logger.e("11111111111111111111111111111111111111111111111d");
             mWebSocketListener.onConnected();
         }
     }
