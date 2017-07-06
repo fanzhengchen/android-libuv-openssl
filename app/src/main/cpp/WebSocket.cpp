@@ -133,11 +133,11 @@ callback(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in
             int type = lws_frame_is_binary(wsi);
             char *content = (char *) in;
             if (type) {
-                invoke_on_receive_data(content);
+                invoke_on_receive_data(content, len);
             } else {
                 invoke_on_receive_text(content);
             }
-            LOGV("client receive %s", content);
+            LOGV("client receive %s %d", content, len);
             break;
         }
         default: {
@@ -161,7 +161,7 @@ void jni_xgn_WebSocket_init(JNIEnv *env, jobject obj) {
     creation_info.port = CONTEXT_PORT_NO_LISTEN;
     creation_info.extensions = exts;
     creation_info.protocols = protocols;
-    creation_info.ws_ping_pong_interval = 8;
+    creation_info.ws_ping_pong_interval = 2;
     creation_info.gid = -1;
     creation_info.uid = -1;
 
@@ -175,6 +175,7 @@ void jni_xgn_WebSocket_init(JNIEnv *env, jobject obj) {
     connect_info.ietf_version_or_minus_one = -1;
     connect_info.protocol = protocols[PROTOCOL_DUMP_INCREMENT].name;
     connect_info.context = context;
+
 
 }
 
@@ -224,8 +225,10 @@ void jni_xgn_WebSocket_sendData(JNIEnv *env, jobject _jobject, jbyteArray _jbyte
         per_session_data *data = (per_session_data *) lws_get_protocol(wsi)->user;
         LOGV("data is %s :[] send message is:%s", data == nullptr ? "null" : "not null", content);
         lws_write(wsi, (unsigned char *) content, len, LWS_WRITE_BINARY);
-
+        invoke_on_receive_data((char *) content, len);
         env->ReleaseByteArrayElements(_jbyteArray, content, 0);
+
+
     }
 }
 
@@ -233,7 +236,7 @@ void jni_xgn_WebSocket_close(JNIEnv *env, jobject obj) {
     LOGV("close");
     force_exit = 1;
     if (context) {
-//        lws_context_destroy(context);
+        lws_context_destroy(context);
     }
 };
 
@@ -287,12 +290,12 @@ void invoke_on_receive_text(char *content) {
     gEnv->ReleaseStringUTFChars(str, content);
 };
 
-void invoke_on_receive_data(char *content) {
-    size_t len = strlen(content);
+void invoke_on_receive_data(char *content, size_t len) {
+    gJvm->AttachCurrentThread(&gEnv, NULL);
     jbyteArray array = gEnv->NewByteArray(len);
     jbyte *bytes = (jbyte *) content;
     gEnv->SetByteArrayRegion(array, 0, len, bytes);
     jmethodID method = gEnv->GetMethodID(gJclass, "onReceiveData", "([B)V");
     gEnv->CallVoidMethod(gObject, method, array);
-    gEnv->ReleaseByteArrayElements(array, bytes, 0);
+//    gEnv->ReleaseByteArrayElements(array, bytes, 0);
 };

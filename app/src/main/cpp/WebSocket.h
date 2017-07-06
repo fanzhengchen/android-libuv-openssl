@@ -87,7 +87,7 @@ void invoke_on_close();
 
 void invoke_on_receive_text(char *);
 
-void invoke_on_receive_data(char *);
+void invoke_on_receive_data(char *, size_t);
 
 #endif
 #endif

@@ -9,6 +9,7 @@ import android.widget.Toast;
 import com.orhanobut.logger.Logger;
 import com.xgn.WebSocket;
 import com.xgn.WebSocketListener;
+import com.xinguang.msgprotocol.client.transfer.MCProtocolPB;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, WebSocketListener {
 
@@ -78,7 +79,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             }
             case R.id.binary_message: {
-                mWebSocket.sendData("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb".getBytes());
+                MCProtocolPB.MCProtocol protocol = MCProtocolPB.MCProtocol.newBuilder()
+                        .setReqID("wwwwwwwwwwwww")
+                        .setAppClientID("aaaaaaaaaaaaaaaaaaa")
+                        .setClientSN("qqqqqqqqqqqqqqqqqqq")
+                        .build();
+                mWebSocket.sendData(protocol.toByteArray());
                 break;
             }
             default: {
@@ -108,7 +114,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onData(final byte[] data) {
-        Logger.e(new String(data));
+        Logger.e("on data");
+        MCProtocolPB.MCProtocol mcProtocol = null;
+        try {
+            mcProtocol = MCProtocolPB.MCProtocol.parseFrom(data);
+            Logger.e(mcProtocol.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         runOnUiThread(new Runnable() {
             @Override
